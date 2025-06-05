@@ -4,12 +4,33 @@ ModbusMaster node;
 
 #define RXD2 16
 #define TXD2 17
+#define RE 18
+#define DE 19  
+
+void preTransmission() {
+  digitalWrite(DE, HIGH);
+  digitalWrite(RE, HIGH);
+  delayMicroseconds(10);
+}
+
+void postTransmission() {
+  digitalWrite(RE, LOW);
+  digitalWrite(DE, LOW);
+  delayMicroseconds(10);
+}
 
 void setup() {
   Serial.begin(115200);
   Serial2.begin(4800, SERIAL_8N1, RXD2, TXD2); // UART2 giao tiếp với CP2102
 
+  pinMode(DE, OUTPUT);
+  pinMode(RE, OUTPUT);
+  digitalWrite(RE, LOW);
+  digitalWrite(DE, LOW);
+
   node.begin(1, Serial2); // Địa chỉ Modbus = 1
+  node.preTransmission(preTransmission);
+  node.postTransmission(postTransmission);
 
   Serial.println("Đang đọc giá trị pH...");
 }
