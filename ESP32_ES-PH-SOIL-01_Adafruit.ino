@@ -6,6 +6,8 @@
 ModbusMaster node;
 #define RXD2 16
 #define TXD2 17
+#define DE 19
+#define RE 18
 float phValue;
 
 // ======= CẤU HÌNH WIFI & ADAFRUIT IO =======
@@ -34,10 +36,29 @@ const unsigned long chuKyGui = 30000; // 30 giây
 bool cheDoAuto = true;
 bool relayDangBat = false;
 
+void preTransmission() {
+  digitalWrite(DE, HIGH);
+  digitalWrite(RE, HIGH);
+  delayMicroseconds(10);
+}
+
+void postTransmission() {
+  digitalWrite(DE, LOW);
+  digitalWrite(RE, LOW);
+  delayMicroseconds(10);
+}
+
 void setup() {
   Serial.begin(115200);
   Serial2.begin(4800, SERIAL_8N1, RXD2, TXD2); // UART2 giao tiếp với Sensor pH
+  
+  pinMode(DE, OUTPUT);
+  pinMode(RE, OUTPUT);
+  digitalWrite(DE, LOW);
+  digitalWrite(RE, LOW);
   node.begin(1, Serial2); // Địa chỉ Modbus = 1
+  node.preTransmission(preTransmission);
+  node.postTransmission(postTransmission);
 
   // ======= KẾT NỐI WIFI =======
   Serial.println("Đang kết nối WiFi...");
